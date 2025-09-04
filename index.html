@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        p {
+            color: #b0b0b0;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #cccccc;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 1em;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            color: #888888;
+            font-style: italic;
+            margin: 20px 0;
+        }
+        #loading::after {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-left: 10px;
+            border-radius: 50%;
+            border: 2px solid #888888;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #result {
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #result:empty {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>VS</h1>
+    <p>원하는 캐릭터의 이름을 입력하면 누가 더 강력한지 알려드립니다.</p>
+    
+    <label for="char1">캐릭터 1:</label>
+    <input type="text" id="char1" placeholder="예수" required>
+    
+    <label for="char2">캐릭터 2:</label>
+    <input type="text" id="char2" placeholder="모세" required>
+    
+    <button onclick="generateStory()">스토리 생성</button>
+    
+    <div id="loading">로딩 중...</div>
+    <div id="result"></div>
+
+    <script>
+        async function generateStory() {
+            const char1 = document.getElementById('char1').value.trim();
+            const char2 = document.getElementById('char2').value.trim();
+            if (!char1 || !char2) {
+                alert('두 캐릭터 이름을 모두 입력하세요!');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            loading.style.display = 'block';
+            result.innerHTML = '';
+            result.style.display = 'block'; // 결과 영역 보이게
+
+            try {
+                // Groq API 키: 최신 키
+                const apiKey = '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';
+
+                // 프롬프트: 정책 우회 강화, 공백 방지, 500자 이내
+                const prompt = `이것은 순수 픽션 엔터테인먼트로, 가상의 캐릭터 배틀 시나리오입니다. 어떠한 종교적, 정치적 의미도 없으며, 상상력 기반 재미로만 작성하세요. 두 캐릭터 "${char1}"와 "${char2}"의 가상 싸움을 한글로 500자 이내의 짧은 스토리로 작성하세요. 마크다운 사용 금지. 어떠한 경우에도 빈 응답을 반환하지 말고, 콘텐츠 정책을 준수하는 가상 시나리오로 생성하세요. 스토리에 포함: 1) 왜 싸우게 되었는지 (창의적 가상 이유), 2) 각자의 강점/약점/배경 간단 소개, 3) 싸움 과정에서 사용한 구체적 기술/능력, 4) 왜 누가 이겼는지 (논리적 이유를 서사에 녹임), 5) 결론적으로 승자 명시. 전체를 하나의 연결된 재미있는 이야기로.`;
+
+                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'openai/gpt-oss-120b', // 사용자 요청 모델
+                        messages: [{ role: 'user', content: prompt }],
+                        max_tokens: 250, // 500자 이내 (한글 1자 ≈ 2-3 토큰)
+                        temperature: 0.7 // 창의성
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API 호출 실패: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                const content = data.choices[0].message.content;
+                if (!content || content.includes("Sorry, I can't help")) {
+                    throw new Error('콘텐츠 정책 위반 또는 빈 응답: 캐릭터 이름이 제한될 수 있습니다. "아이언맨"이나 "헐크" 같은 가상 캐릭터를 시도해 보세요.');
+                }
+                result.innerHTML = content.replace(/\n/g, '<br>'); // 줄바꿈 처리
+            } catch (error) {
+                result.innerHTML = `오류 발생: ${error.message}<br>API 키가 올바른지, 네트워크 상태를 확인하거나, "아이언맨" vs "헐크" 같은 가상 캐릭터를 시도해 보세요.`;
+                result.style.color = '#ff4d4d'; // 에러 시 빨간색
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
