@@ -105,6 +105,29 @@ async function generateStory() {
             }
         }
 
+        // 루프 종료 후 남은 버퍼 처리 (마지막 chunk가 \n\n으로 끝나지 않을 경우)
+        if (buffer.length > 0) {
+            const chunk = buffer; // 남은 버퍼 전체를 chunk로 취급
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6);
+                    if (data === '[DONE]') continue;
+
+                    try {
+                        const parsed = JSON.parse(data);
+                        const content = parsed.choices[0]?.delta?.content;
+                        if (content) {
+                            result.innerHTML += escapeHTML(content);
+                            result.scrollTop = result.scrollHeight;
+                        }
+                    } catch (e) {
+                        console.error('JSON 파싱 오류:', e);
+                    }
+                }
+            }
+        }
+
         if (result.innerHTML.trim() === '') {
             result.innerHTML = '캐릭터 분석을 완료하지 못했습니다. 입력을 다시 확인하거나 나중에 시도해주세요.';
         }
