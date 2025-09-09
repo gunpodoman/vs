@@ -48,7 +48,7 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama3-70b-8192', // 실제 Groq에서 사용 가능한 모델명으로 수정
+                model: 'openai/gpt-oss-120b', // 모델 수정하지 말라고;;
                 messages: [{ role: 'user', content: prompt }],
                 max_tokens: 4096,
                 temperature: 0.7,
