@@ -61,32 +61,30 @@ export default async function handler(req, res) {
             throw new Error(`Groq API 호출 실패: ${groqResponse.statusText} - ${errorBody}`);
         }
 
+        // 헤더 설정
         res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
-        
-        // ReadableStream.pipeTo()를 사용하여 스트림을 안전하게 파이핑
-        // Vercel 환경에서는 groqResponse.body.pipe(res)도 잘 동작합니다.
-        const reader = groqResponse.body.getReader();
-        const stream = new ReadableStream({
-            async start(controller) {
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    controller.enqueue(value);
-                }
-                controller.close();
-            }
-        });
 
-        return new Response(stream, {
-            headers: {
-                'Content-Type': 'text/event-stream; charset=utf-8',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-            }
-        });
-        
+        // ReadableStream을 res로 수동 파이핑
+        const reader = groqResponse.body.getReader();
+
+        function pump() {
+            reader.read().then(({ done, value }) => {
+                if (done) {
+                    res.end();
+                    return;
+                }
+                res.write(value);
+                pump();
+            }).catch(error => {
+                console.error('스트림 오류:', error);
+                res.end();
+            });
+        }
+
+        pump();
+
     } catch (error) {
         console.error(error); // 서버 로그에 에러 기록
         res.status(500).json({ error: error.message });
