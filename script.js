@@ -1,5 +1,3 @@
-// script.js
-
 // 페이지의 모든 HTML 요소가 로드된 후에 스크립트를 실행합니다.
 document.addEventListener('DOMContentLoaded', () => {
     const generateButton = document.getElementById('generateBtn');
