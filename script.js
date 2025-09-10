@@ -1,3 +1,5 @@
+// script.js
+
 // 페이지의 모든 HTML 요소가 로드된 후에 스크립트를 실행합니다.
 document.addEventListener('DOMContentLoaded', () => {
     const generateButton = document.getElementById('generateBtn');
@@ -6,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const state1Input = document.getElementById('state1');
     const state2Input = document.getElementById('state2');
     const locationInput = document.getElementById('location');
+    const closePopup = document.getElementById('closePopup');
+    const winnerPopup = document.getElementById('winnerPopup');
 
     generateButton.addEventListener('click', generateStory);
 
@@ -23,6 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
     state1Input.addEventListener('keydown', handleEnterKey);
     state2Input.addEventListener('keydown', handleEnterKey);
     locationInput.addEventListener('keydown', handleEnterKey);
+
+    // 팝업 닫기 버튼 이벤트
+    closePopup.addEventListener('click', () => {
+        winnerPopup.style.display = 'none';
+    });
 });
 
 /**
@@ -50,6 +59,8 @@ async function generateStory() {
     const generateButton = document.getElementById('generateBtn');
     const loading = document.getElementById('loading');
     const result = document.getElementById('result');
+    const winnerText = document.getElementById('winnerText');
+    const winnerPopup = document.getElementById('winnerPopup');
 
     const char1 = char1Input.value.trim();
     const char2 = char2Input.value.trim();
@@ -68,6 +79,7 @@ async function generateStory() {
     result.innerHTML = '';
     result.style.color = '#e0e0e0'; // 이전 오류 색상 초기화
     result.style.display = 'block';
+    winnerPopup.style.display = 'none'; // 이전 팝업 숨기기
 
     try {
         const url = `/api/generate-story?char1=${encodeURIComponent(char1)}&char2=${encodeURIComponent(char2)}&state1=${encodeURIComponent(state1)}&state2=${encodeURIComponent(state2)}&location=${encodeURIComponent(location)}`;
@@ -142,6 +154,15 @@ async function generateStory() {
 
         if (result.innerHTML.trim() === '') {
             result.innerHTML = '캐릭터 분석을 완료하지 못했습니다. 입력을 다시 확인하거나 나중에 시도해주세요.';
+        }
+
+        // 스토리 생성 후 승자 파싱 및 팝업 표시
+        const fullText = result.textContent;
+        const winnerMatch = fullText.match(/승자: (.+)$/);
+        if (winnerMatch) {
+            const winner = winnerMatch[1].trim();
+            winnerText.textContent = `[${winner}] 승리!`;
+            winnerPopup.style.display = 'flex';
         }
 
     } catch (error) {
