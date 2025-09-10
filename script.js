@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const state2Input = document.getElementById('state2');
     const locationInput = document.getElementById('location');
 
-    // '스토리 생성' 버튼 클릭 시 기능 실행
     generateButton.addEventListener('click', generateStory);
 
     // Enter 키를 눌렀을 때 실행될 함수
