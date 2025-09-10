@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateButton = document.getElementById('generateBtn');
     const char1Input = document.getElementById('char1');
     const char2Input = document.getElementById('char2');
+    const state1Input = document.getElementById('state1');
+    const state2Input = document.getElementById('state2');
+    const locationInput = document.getElementById('location');
 
     // '스토리 생성' 버튼 클릭 시 기능 실행
     generateButton.addEventListener('click', generateStory);
@@ -18,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 각 입력창에 Enter 키 이벤트 리스너 추가
     char1Input.addEventListener('keydown', handleEnterKey);
     char2Input.addEventListener('keydown', handleEnterKey);
+    state1Input.addEventListener('keydown', handleEnterKey);
+    state2Input.addEventListener('keydown', handleEnterKey);
+    locationInput.addEventListener('keydown', handleEnterKey);
 });
 
 /**
@@ -39,12 +45,18 @@ function escapeHTML(str) {
 async function generateStory() {
     const char1Input = document.getElementById('char1');
     const char2Input = document.getElementById('char2');
+    const state1Input = document.getElementById('state1');
+    const state2Input = document.getElementById('state2');
+    const locationInput = document.getElementById('location');
     const generateButton = document.getElementById('generateBtn');
     const loading = document.getElementById('loading');
     const result = document.getElementById('result');
 
     const char1 = char1Input.value.trim();
     const char2 = char2Input.value.trim();
+    const state1 = state1Input.value.trim();
+    const state2 = state2Input.value.trim();
+    const location = locationInput.value.trim();
 
     if (!char1 || !char2) {
         alert('두 캐릭터 이름을 모두 입력하세요!');
@@ -59,7 +71,8 @@ async function generateStory() {
     result.style.display = 'block';
 
     try {
-        const response = await fetch(`/api/generate-story?char1=${encodeURIComponent(char1)}&char2=${encodeURIComponent(char2)}`);
+        const url = `/api/generate-story?char1=${encodeURIComponent(char1)}&char2=${encodeURIComponent(char2)}&state1=${encodeURIComponent(state1)}&state2=${encodeURIComponent(state2)}&location=${encodeURIComponent(location)}`;
+        const response = await fetch(url);
 
         if (!response.ok) {
             const errorData = await response.json();
